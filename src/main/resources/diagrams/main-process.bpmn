@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:flowable="http://flowable.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.flowable.org/processdef">
+  <signal id="startJobSelection" name="Start Job Selection" flowable:scope="global"></signal>
+  <signal id="startJobExecution" name="Start Job Execution" flowable:scope="global"></signal>
+  <signal id="jobsExecuted" name="Jobs Executed" flowable:scope="global"></signal>
+  <message id="executeJobMessage" name="executeJobMessage"></message>
+  <process id="mainProcess" name="Main Process" isExecutable="true">
+    <startEvent id="startEvent" name="Start" flowable:formFieldValidation="true"></startEvent>
+    <intermediateCatchEvent id="allJobsDoneSignalIntermediateCatchEvent" name="All Jobs Done">
+      <signalEventDefinition signalRef="jobsExecuted"></signalEventDefinition>
+    </intermediateCatchEvent>
+    <endEvent id="endEvent" name="End"></endEvent>
+    <sequenceFlow id="flow6" sourceRef="allJobsDoneSignalIntermediateCatchEvent" targetRef="endEvent"></sequenceFlow>
+    <subProcess id="jobSelectionEventSubprocess" name="Job Selection" triggeredByEvent="true">
+      <startEvent id="jobSelectionStartEvent" name="Start" isInterrupting="false">
+        <signalEventDefinition signalRef="startJobSelection"></signalEventDefinition>
+      </startEvent>
+      <serviceTask id="triggerJobExecutionTask" name="Trigger Job Execution" flowable:async="true" flowable:exclusive="false" flowable:class="parallel.flowable.test.TriggerJobExecutionTask"></serviceTask>
+      <endEvent id="jobSelectionEndEvent" name="End"></endEvent>
+      <sequenceFlow id="flow7" sourceRef="jobSelectionStartEvent" targetRef="triggerJobExecutionTask"></sequenceFlow>
+      <sequenceFlow id="flow10" sourceRef="triggerJobExecutionTask" targetRef="jobSelectionEndEvent"></sequenceFlow>
+    </subProcess>
+    <subProcess id="eventsubprocess2" name="Job Execution (Not used)" triggeredByEvent="true">
+      <serviceTask id="executeJobTask" name="Execute Job" flowable:async="true" flowable:exclusive="false" flowable:class="parallel.flowable.test.ExecuteJobTask"></serviceTask>
+      <endEvent id="jobExecutionEndEvent" name="End"></endEvent>
+      <startEvent id="jobExecutionStartEvent" name="Start" isInterrupting="false">
+        <messageEventDefinition messageRef="executeJobMessage"></messageEventDefinition>
+      </startEvent>
+      <sequenceFlow id="flow9" sourceRef="executeJobTask" targetRef="jobExecutionEndEvent"></sequenceFlow>
+      <sequenceFlow id="flow8" sourceRef="jobExecutionStartEvent" targetRef="executeJobTask"></sequenceFlow>
+    </subProcess>
+    <serviceTask id="startJobSelectionTask" name="Start Job Selection" flowable:class="parallel.flowable.test.StartJobSelectionTask"></serviceTask>
+    <sequenceFlow id="sid-37CEEEAD-67F9-42FE-9A7E-F9A15808BF16" sourceRef="startEvent" targetRef="startJobSelectionTask"></sequenceFlow>
+    <sequenceFlow id="sid-A31B74E5-48AE-4E93-9173-A92A91C7C1AA" sourceRef="startJobSelectionTask" targetRef="allJobsDoneSignalIntermediateCatchEvent"></sequenceFlow>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_mainProcess">
+    <bpmndi:BPMNPlane bpmnElement="mainProcess" id="BPMNPlane_mainProcess">
+      <bpmndi:BPMNShape bpmnElement="startEvent" id="BPMNShape_startEvent">
+        <omgdc:Bounds height="30.0" width="30.0" x="30.0" y="50.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="allJobsDoneSignalIntermediateCatchEvent" id="BPMNShape_allJobsDoneSignalIntermediateCatchEvent">
+        <omgdc:Bounds height="30.0" width="30.0" x="350.0" y="50.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="endEvent" id="BPMNShape_endEvent">
+        <omgdc:Bounds height="28.0" width="28.0" x="510.0" y="51.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="jobSelectionEventSubprocess" id="BPMNShape_jobSelectionEventSubprocess">
+        <omgdc:Bounds height="205.0" width="361.0" x="90.0" y="150.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="jobSelectionStartEvent" id="BPMNShape_jobSelectionStartEvent">
+        <omgdc:Bounds height="30.0" width="30.0" x="120.0" y="239.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="triggerJobExecutionTask" id="BPMNShape_triggerJobExecutionTask">
+        <omgdc:Bounds height="75.0" width="105.0" x="225.0" y="216.5"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="jobSelectionEndEvent" id="BPMNShape_jobSelectionEndEvent">
+        <omgdc:Bounds height="28.0" width="28.0" x="390.0" y="240.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="eventsubprocess2" id="BPMNShape_eventsubprocess2">
+        <omgdc:Bounds height="197.0" width="523.0" x="90.0" y="370.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="executeJobTask" id="BPMNShape_executeJobTask">
+        <omgdc:Bounds height="55.0" width="105.0" x="225.0" y="445.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="jobExecutionEndEvent" id="BPMNShape_jobExecutionEndEvent">
+        <omgdc:Bounds height="28.0" width="28.0" x="390.0" y="458.5"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="jobExecutionStartEvent" id="BPMNShape_jobExecutionStartEvent">
+        <omgdc:Bounds height="30.0" width="30.5" x="120.0" y="457.5"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="startJobSelectionTask" id="BPMNShape_startJobSelectionTask">
+        <omgdc:Bounds height="80.0" width="100.0" x="120.0" y="25.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="sid-A31B74E5-48AE-4E93-9173-A92A91C7C1AA" id="BPMNEdge_sid-A31B74E5-48AE-4E93-9173-A92A91C7C1AA">
+        <omgdi:waypoint x="219.949999999939" y="65.0"></omgdi:waypoint>
+        <omgdi:waypoint x="350.0" y="65.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow6" id="BPMNEdge_flow6">
+        <omgdi:waypoint x="379.94999927705646" y="65.0"></omgdi:waypoint>
+        <omgdi:waypoint x="510.0" y="65.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow7" id="BPMNEdge_flow7">
+        <omgdi:waypoint x="149.94999910001218" y="254.0"></omgdi:waypoint>
+        <omgdi:waypoint x="225.0" y="254.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow10" id="BPMNEdge_flow10">
+        <omgdi:waypoint x="329.94999999997265" y="254.0"></omgdi:waypoint>
+        <omgdi:waypoint x="390.0" y="254.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow8" id="BPMNEdge_flow8">
+        <omgdi:waypoint x="150.4499990507768" y="472.5"></omgdi:waypoint>
+        <omgdi:waypoint x="224.99999999975483" y="472.5"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow9" id="BPMNEdge_flow9">
+        <omgdi:waypoint x="329.95000000000005" y="472.5"></omgdi:waypoint>
+        <omgdi:waypoint x="390.0" y="472.5"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-37CEEEAD-67F9-42FE-9A7E-F9A15808BF16" id="BPMNEdge_sid-37CEEEAD-67F9-42FE-9A7E-F9A15808BF16">
+        <omgdi:waypoint x="59.94999883049306" y="65.0"></omgdi:waypoint>
+        <omgdi:waypoint x="120.0" y="65.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>
